@@ -307,7 +307,7 @@ if (typeof jQuery === 'undefined') {
                 $parent.find('i[data-bv-icon-for="' + field + '"]').remove();
 
                 // Whenever the user change the field value, mark it as not validated yet
-                $field.off(events).on(events, function() {
+                this._onFieldInput($field, 'update', function() {
                     that.updateStatus($(this), that.STATUS_NOT_VALIDATED);
                 });
                 
@@ -459,7 +459,7 @@ if (typeof jQuery === 'undefined') {
                 case 'enabled':
                 /* falls through */
                 default:
-                    fields.off(events).on(events, function() {
+                    this._onFieldInput(fields, 'live', function() {
                         if (that._exceedThreshold($(this))) {
                             that.validateField($(this));
                         }
@@ -679,6 +679,64 @@ if (typeof jQuery === 'undefined') {
 
             // Submit the form
             this.disableSubmitButtons(true).defaultSubmit();
+        },
+
+        /*
+         * Get a field changed trigger event
+         *
+         * @param {jQuery} $field The field element
+         * @returns {String[]} The event names triggered on field change
+         */
+        _getFieldTrigger: function($field) {
+            var type      = $field.attr('type'),
+                name      = $field.attr('data-bv-field'),
+                event     = ('radio' === type || 'checkbox' === type || 'file' === type || 'SELECT' === $field.get(0).tagName) ? 'change' : this._changeEvent,
+                trigger   = (this.options.fields[name].trigger || this.options.trigger || event).split(' ');
+            return trigger;
+         },
+        
+        /*
+         * Bind a field input event
+         *
+         * @param {jQuery} $fields The field elements
+         * @param {String} namespace The event namespace
+         * @param {Function} handler The handler function
+         */
+        _onFieldInput: function($fields, namespace, handler) {
+            var that                     = this,
+                previousValueAttrName    = 'data-bv-previous-' + namespace + '-value',
+                previousValidityAttrName = 'data-bv-previous-' + namespace + '-validity',
+                trigger                  = this._getFieldTrigger($fields.eq(0)),
+                events                   = $.map(trigger, function(item) {
+                    return item + '.' + namespace + '.bv';
+                }).join(' ');
+            $fields.each(function() {
+                $(this).attr(previousValueAttrName, $(this).val());
+                if (this.validity) {
+                    var validityStr = JSON.stringify(this.validity);
+                    $(this).attr(previousValidityAttrName, validityStr);
+                }
+            });
+            $fields.off(events).on(events, function(e) {
+                var handleEvent = true;
+                if (e.type === that._changeEvent) {
+                    var val = $(this).val();
+                    if ($(this).attr(previousValueAttrName) === val) {
+                        if (this.validity) {
+                            var validityStr = JSON.stringify(this.validity);
+                            handleEvent = validityStr !== $(this).attr(previousValidityAttrName);
+                            $(this).attr(previousValidityAttrName, validityStr);
+                        } else {
+                            handleEvent = false;
+                        }
+                    }
+                    $(this).attr(previousValueAttrName, val);
+                }
+                if (handleEvent) {
+                    handler.apply(this, arguments);
+                }
+            });
+            
         },
 
         /**
