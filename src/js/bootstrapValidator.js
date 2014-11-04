@@ -714,7 +714,7 @@ if (typeof jQuery === 'undefined') {
             });
             $fields.off(events).on(events, function(e) {
                 var val = $(this).val();
-                if (e.type !== 'input' || $(this).attr(previousValueAttrName) !== val) {
+                if (e.type !== that._changeEvent || $(this).attr(previousValueAttrName) !== val) {
                     $(this).attr(previousValueAttrName, val);
                     handler.apply(this, arguments);
                 }
