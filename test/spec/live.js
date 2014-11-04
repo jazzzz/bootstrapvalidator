@@ -54,22 +54,28 @@ describe('live', function() {
     });
 
     it('fields should be validated on input', function() {
-        this.$input1.val('text');
-        this.$input1.trigger("input");
+        fill(this.$input1, 'text');
         expect(this.bv.getMessages(this.$input1)).toEqual([]);
-        this.$input1.val('');
-        this.$input1.trigger("input");
+        fill(this.$input1, '');
         expect(this.bv.getMessages(this.$input1)).not.toEqual([]);
     });
 
     it('fields should not be unvalidated on blur', function() {
         this.$input1.focus();
-        this.$input1.trigger("input");
-        this.$input1.val('text');
-        this.$input1.trigger("input");
-        this.$input1.val('');
-        this.$input1.trigger("input");
+        triggerInput(this.$input1);
+        fill(this.$input1, 'text');
+        fill(this.$input1, '');
         this.$input1.blur();
         expect(this.bv.getMessages(this.$input1)).not.toEqual([]);
     });
+
+    function fill($input, val) {
+        $input.val(val);
+        triggerInput($input);
+    }
+
+    function triggerInput($input) {
+        $input.trigger("keyup"); // for IE9
+        $input.trigger("input"); // for anything else
+    }
 });

@@ -688,18 +688,18 @@ if (typeof jQuery === 'undefined') {
          * @param {Function} handler The handler function
          */
         _onFieldInput: function($fields, namespace, handler) {
-            var that = this,
+            var that                  = this,
                 previousValueAttrName = 'data-bv-previous-' + namespace + '-value',
-                trigger = this._getFieldTrigger($fields.eq(0)),
-                events  = $.map(trigger, function(item) {
+                trigger               = this._getFieldTrigger($fields.eq(0)),
+                events                = $.map(trigger, function(item) {
                     return item + '.' + namespace + '.bv';
                 }).join(' ');
             $fields.each(function() {
                 $(this).attr(previousValueAttrName, $(this).val());
             });
-            $fields.off(events).on(events, function() {
+            $fields.off(events).on(events, function(e) {
                 var val = $(this).val();
-                if ($(this).attr(previousValueAttrName) !== val) {
+                if (e.type !== that._changeEvent || $(this).attr(previousValueAttrName) !== val) {
                     $(this).attr(previousValueAttrName, val);
                     handler.apply(this, arguments);
                 }
