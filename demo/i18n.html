@@ -242,9 +242,6 @@ $(document).ready(function() {
             password: {
                 validators: {
                     notEmpty: {},
-                    identical: {
-                        field: 'confirmPassword'
-                    },
                     different: {
                         field: 'username',
                         message: 'Mật khẩu và tên đăng nhập phải khác nhau'

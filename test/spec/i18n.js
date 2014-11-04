@@ -164,9 +164,6 @@ describe('i18n', function() {
                 password: {
                     validators: {
                         notEmpty: {},
-                        identical: {
-                            field: 'confirmPassword'
-                        },
                         different: {
                             field: 'username'
                         }
@@ -283,7 +280,7 @@ describe('i18n', function() {
         this.$password.val('@S3cur3P@@w0rd');
         this.$confirm.val('notMatch');
         this.bv.validate();
-        expect(this.bv.getMessages('password', 'identical')[0]).toEqual(i18n.identical['default']);
+        expect(this.bv.getMessages('confirmPassword', 'identical')[0]).toEqual(i18n.identical['default']);
 
         this.bv.resetForm();
         this.$age.val('notDigit');

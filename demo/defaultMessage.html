@@ -242,10 +242,6 @@ $(document).ready(function() {
             password: {
                 validators: {
                     notEmpty: {},
-                    identical: {
-                        field: 'confirmPassword',
-                        message: 'The password and its confirm are not the same'
-                    },
                     different: {
                         field: 'username',
                         message: 'The password cannot be the same as username'
@@ -256,7 +252,8 @@ $(document).ready(function() {
                 validators: {
                     notEmpty: {},
                     identical: {
-                        field: 'password'
+                        field: 'password',
+                        message: 'The password and its confirm are not the same'
                     },
                     different: {
                         field: 'username',
