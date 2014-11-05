@@ -688,19 +688,36 @@ if (typeof jQuery === 'undefined') {
          * @param {Function} handler The handler function
          */
         _onFieldInput: function($fields, namespace, handler) {
-            var that                  = this,
-                previousValueAttrName = 'data-bv-previous-' + namespace + '-value',
-                trigger               = this._getFieldTrigger($fields.eq(0)),
-                events                = $.map(trigger, function(item) {
+            var that                     = this,
+                previousValueAttrName    = 'data-bv-previous-' + namespace + '-value',
+                previousValidityAttrName = 'data-bv-previous-' + namespace + '-validity',
+                trigger                  = this._getFieldTrigger($fields.eq(0)),
+                events                   = $.map(trigger, function(item) {
                     return item + '.' + namespace + '.bv';
                 }).join(' ');
             $fields.each(function() {
                 $(this).attr(previousValueAttrName, $(this).val());
+                if (this.validity) {
+                    var validityStr = JSON.stringify(this.validity);
+                    $(this).attr(previousValidityAttrName, validityStr);
+                }
             });
             $fields.off(events).on(events, function(e) {
-                var val = $(this).val();
-                if (e.type !== that._changeEvent || $(this).attr(previousValueAttrName) !== val) {
+                var handleEvent = true;
+                if (e.type === that._changeEvent) {
+                    var val = $(this).val();
+                    if ($(this).attr(previousValueAttrName) === val) {
+                        if (this.validity) {
+                            var validityStr = JSON.stringify(this.validity);
+                            handleEvent = validityStr !== $(this).attr(previousValidityAttrName);
+                            $(this).attr(previousValidityAttrName, validityStr);
+                        } else {
+                            handleEvent = false;
+                        }
+                    }
                     $(this).attr(previousValueAttrName, val);
+                }
+                if (handleEvent) {
                     handler.apply(this, arguments);
                 }
             });
